@@ -33,6 +33,8 @@ ApplicationWindow {
     property string hoveredNavTipKey: ""
     property real hoveredNavCenterX: 0
     property real hoveredNavCenterY: 0
+    readonly property bool shortcutsBlocked: aboutDialog.visible
+                                            || mousePageView.hasBlockingDialog
 
     function openPage(page) {
         if (root.currentPage === page)
@@ -262,7 +264,9 @@ ApplicationWindow {
             Layout.fillHeight: true
             currentIndex: root.currentPage
 
-            MousePage {}
+            MousePage {
+                id: mousePageView
+            }
             Loader {
                 active: root.currentPage === 1 || item
                 source: "ScrollPage.qml"
@@ -632,9 +636,47 @@ ApplicationWindow {
         }
     }
 
+    // Hide-to-tray: every "close window" idiom on every supported platform routes through
+    // dismiss() so the engine and tray icon keep running. macOS LSUIElement bundles depend
+    // on this because the Dock close button never terminates the process; Linux and Windows
+    // tray builds inherit the same behavior for consistency.
+    function dismiss() {
+        if (!root.visible) {
+            return
+        }
+        root.hide()
+    }
+
     onClosing: function(close) {
         close.accepted = false
-        root.hide()
+        root.dismiss()
+    }
+
+    // LSUIElement apps have no platform menu bar binding StandardKey.Close to Cmd-W, and
+    // Ctrl/Cmd+M mirrors the OS "minimize" idiom. Keep these scoped to the main window
+    // and disable them while any blocking dialog / shortcut-capture overlay is open so
+    // typing flows cannot get swallowed by a global hide-to-tray shortcut.
+    Shortcut {
+        sequence: StandardKey.Close
+        context: Qt.WindowShortcut
+        enabled: root.visible && !root.shortcutsBlocked
+        onActivated: root.dismiss()
+    }
+
+    Shortcut {
+        sequence: "Ctrl+M"
+        context: Qt.WindowShortcut
+        enabled: root.visible && !root.shortcutsBlocked
+        onActivated: root.dismiss()
+    }
+
+    // Keep Esc on the same main-window path; blocking dialogs and the key-capture overlay
+    // own Escape while open, so dismiss() only runs when the real shell is frontmost.
+    Shortcut {
+        sequence: "Escape"
+        context: Qt.WindowShortcut
+        enabled: root.visible && !root.shortcutsBlocked
+        onActivated: root.dismiss()
     }
 
     Connections {
