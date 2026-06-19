@@ -17,12 +17,16 @@ ROOT = Path(__file__).resolve().parents[1]
 # Built at runtime so this file never contains the literal itself.
 _PREVIOUSLY_LEAKED_TEAM_ID = "MVDT65" + "NPA4"
 
-# Shell parameter expansion with a non-empty default, e.g. ${MOUSER_TEAM_ID:-ABC123}.
-_SHELL_DEFAULT = re.compile(r"\$\{MOUSER_(?:TEAM_ID|SIGN_IDENTITY):-[^}]+\}")
+# Shell parameter expansion with a non-empty default, e.g.
+# ${MOUSER_TEAM_ID:-ABC123}, ${MOUSER_TEAM_ID-ABC123}, or ${MOUSER_TEAM_ID:=ABC123}.
+_SHELL_DEFAULT = re.compile(
+    r"\$\{MOUSER_(?:TEAM_ID|SIGN_IDENTITY)(?::?[-=])[^}]+\}"
+)
 
-# Python env lookup with a non-empty default, e.g. os.environ.get("MOUSER_TEAM_ID", "ABC").
+# Python env lookup with a non-empty default, e.g. os.environ.get("MOUSER_TEAM_ID", "ABC"),
+# os.getenv("MOUSER_TEAM_ID", "ABC"), or env.get("MOUSER_TEAM_ID", "ABC").
 _PYTHON_DEFAULT = re.compile(
-    r"""environ\.get\(\s*["']MOUSER_(?:TEAM_ID|SIGN_IDENTITY)["']\s*,\s*["'][^"']+["']"""
+    r"""(?:os\.getenv|(?:[A-Za-z_][A-Za-z0-9_]*\.)?environ\.get|[A-Za-z_][A-Za-z0-9_\.]*\.get)\(\s*["']MOUSER_(?:TEAM_ID|SIGN_IDENTITY)["']\s*,\s*["'][^"']+["']"""
 )
 
 # A literal SHA-1 codesigning identity (uppercase 40 hex chars).
@@ -92,6 +96,26 @@ class NoHardcodedSigningSecretsTests(unittest.TestCase):
             lambda line: _PYTHON_DEFAULT.search(line),
             "Python fallback default for MOUSER_TEAM_ID/MOUSER_SIGN_IDENTITY",
         )
+
+    def test_shell_guard_covers_common_default_variants(self):
+        examples = (
+            "${MOUSER_TEAM_ID:-ABC123}",
+            "${MOUSER_TEAM_ID-ABC123}",
+            "${MOUSER_SIGN_IDENTITY:=ABC123}",
+        )
+        for example in examples:
+            with self.subTest(example=example):
+                self.assertIsNotNone(_SHELL_DEFAULT.search(example))
+
+    def test_python_guard_covers_common_default_variants(self):
+        examples = (
+            'os.environ.get("MOUSER_TEAM_ID", "ABC123")',
+            'os.getenv("MOUSER_SIGN_IDENTITY", "ABC123")',
+            'env.get("MOUSER_TEAM_ID", "ABC123")',
+        )
+        for example in examples:
+            with self.subTest(example=example):
+                self.assertIsNotNone(_PYTHON_DEFAULT.search(example))
 
     def test_no_literal_codesigning_identity_hashes(self):
         self._scan(
