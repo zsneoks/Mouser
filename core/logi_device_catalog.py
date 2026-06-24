@@ -206,15 +206,17 @@ LOGI_DEVICE_SPECS = (
     # Bolt receiver or Bluetooth LE. HID++ reports device name "Signature M650".
     # Confirmed via live HID++ probe: REPROG_CONTROLS_V4 (slot 2 on Bolt receiver),
     # LOWRES_WHEEL, ADJUSTABLE_DPI (200–4000 DPI), UNIFIED_BATTERY.
-    # Bluetooth LE product ID not yet confirmed; product_ids left empty so
-    # name-based matching ("Signature M650" / "Logi M650") handles detection.
+    # Bluetooth LE product ID confirmed in issue #215 as 0xB02A; keep the
+    # common HID/OS name variants as fallbacks because some platforms only
+    # surface the product string.
     {
         "key": "m650",
         "display_name": "M650 Signature",
-        "product_ids": (),
+        "product_ids": (0xB02A,),
         "aliases": (
             "Signature M650",
             "Logi M650",
+            "Logitech Signature M650",
             "M650",
             "M650 Signature",
             "Logitech M650 Signature",
