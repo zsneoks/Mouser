@@ -226,6 +226,7 @@ class Backend(QObject):
     knownAppsChanged = Signal()
     updateAvailable = Signal(str, str)
     updateInstallChanged = Signal()
+    quitRequested = Signal()
 
     # Internal cross-thread signals
     _profileSwitchRequest = Signal(str)
@@ -2106,3 +2107,8 @@ class Backend(QObject):
                 if self._record_mode:
                     self._finalize_attempt()
             self.gestureStateChanged.emit()
+
+    @Slot()
+    def quitApp(self):
+        """Request the main application to shut down cleanly."""
+        self.quitRequested.emit()

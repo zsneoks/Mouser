@@ -12,6 +12,7 @@ _TRANSLATIONS = {
         "nav.mouse_profiles": "Mouse & Profiles",
         "nav.point_scroll": "General",
         "nav.about": "About",
+        "nav.quit": "Quit",
 
         # Mouse page — profile list
         "mouse.profiles": "Profiles",
@@ -245,6 +246,7 @@ _TRANSLATIONS = {
         "nav.mouse_profiles": "\u9f20\u6807\u4e0e\u914d\u7f6e\u6587\u4ef6",
         "nav.point_scroll": "\u901a\u7528",
         "nav.about": "\u5173\u4e8e",
+        "nav.quit": "\u9000\u51fa",
 
         "mouse.profiles": "\u914d\u7f6e\u6587\u4ef6",
         "mouse.all_applications": "\u6240\u6709\u5e94\u7528\u7a0b\u5e8f",
@@ -461,6 +463,7 @@ _TRANSLATIONS = {
         "nav.mouse_profiles": "\u6ed1\u9f20\u8207\u8a2d\u5b9a\u6a94",
         "nav.point_scroll": "\u901a\u7528",
         "nav.about": "\u95dc\u65bc",
+        "nav.quit": "\u9000\u51fa",
 
         "mouse.profiles": "\u8a2d\u5b9a\u6a94",
         "mouse.all_applications": "\u6240\u6709\u61c9\u7528\u7a0b\u5f0f",

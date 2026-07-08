@@ -1266,6 +1266,7 @@ def main():
 
     quit_action.triggered.connect(quit_app)
     tray_menu.addAction(quit_action)
+    backend.quitRequested.connect(quit_app)
 
     def _update_tray_texts():
         """Refresh tray menu labels after a language change."""
@@ -1305,19 +1306,14 @@ def main():
         QSystemTrayIcon.ActivationReason.Trigger,
         QSystemTrayIcon.ActivationReason.DoubleClick,
     ) else None)
-    tray.show()
+    if sys.platform != "darwin":
+        tray.show()
 
-    # macOS only: install a native NSStatusItem so the menu-bar icon
-    # can use AppKit's variable-length item path on notched MacBooks
-    # where Qt's square status item can disappear under constrained
-    # menu-bar space. We keep QSystemTrayIcon alive for notifications
-    # and hide only its icon surface to avoid two menu-bar items.
+    # macOS only: Do NOT install the menu bar icon (neither Qt tray nor native status item)
+    # as per user preference to keep the menu bar clean. We keep the QSystemTrayIcon
+    # instance alive (but invisible) for system notifications.
     if sys.platform == "darwin":
-        native_tray = _install_native_macos_status_item(
-            tray_menu, show_main_window
-        )
-        if native_tray is not None:
-            tray.setVisible(False)
+        tray.setVisible(False)
 
     if launch_hidden and QSystemTrayIcon.isSystemTrayAvailable():
         _schedule_tray_minimized_notice(tray, locale_mgr)

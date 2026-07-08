@@ -190,67 +190,134 @@ ApplicationWindow {
                     }
                 }
 
-                FocusScope {
-                    id: aboutButton
+                Column {
+                    id: bottomButtons
                     anchors {
                         bottom: parent.bottom
                         horizontalCenter: parent.horizontalCenter
                     }
-                    width: sidebar.width
-                    height: 56
-                    activeFocusOnTab: true
+                    spacing: 6
 
-                    Accessible.role: Accessible.Button
-                    Accessible.name: lm.strings["nav.about"] || "About"
-                    Accessible.description: "Open " + (lm.strings["nav.about"] || "About")
+                    FocusScope {
+                        id: aboutButton
+                        width: sidebar.width
+                        height: 56
+                        activeFocusOnTab: true
 
-                    Keys.onReturnPressed: aboutDialog.open()
-                    Keys.onEnterPressed: aboutDialog.open()
-                    Keys.onSpacePressed: aboutDialog.open()
+                        Accessible.role: Accessible.Button
+                        Accessible.name: lm.strings["nav.about"] || "About"
+                        Accessible.description: "Open " + (lm.strings["nav.about"] || "About")
 
-                    Rectangle {
-                        anchors.centerIn: parent
-                        width: 46
-                        height: 46
-                        radius: 14
-                        color: aboutMouse.containsMouse || aboutButton.activeFocus || aboutDialog.visible
-                               ? Qt.rgba(1, 1, 1, root.darkMode ? 0.06 : 0.22)
-                               : "transparent"
+                        Keys.onReturnPressed: aboutDialog.open()
+                        Keys.onEnterPressed: aboutDialog.open()
+                        Keys.onSpacePressed: aboutDialog.open()
 
-                        border.width: aboutButton.activeFocus ? 1 : 0
-                        border.color: root.theme.accent
-
-                        Behavior on color { ColorAnimation { duration: 150 } }
-
-                        AppIcon {
+                        Rectangle {
                             anchors.centerIn: parent
-                            width: 20
-                            height: 20
-                            name: "info"
-                            iconColor: aboutMouse.containsMouse || aboutButton.activeFocus || aboutDialog.visible
-                                       ? root.theme.textPrimary
-                                       : root.theme.textSecondary
+                            width: 46
+                            height: 46
+                            radius: 14
+                            color: aboutMouse.containsMouse || aboutButton.activeFocus || aboutDialog.visible
+                                   ? Qt.rgba(1, 1, 1, root.darkMode ? 0.06 : 0.22)
+                                   : "transparent"
+
+                            border.width: aboutButton.activeFocus ? 1 : 0
+                            border.color: root.theme.accent
+
+                            Behavior on color { ColorAnimation { duration: 150 } }
+
+                            AppIcon {
+                                anchors.centerIn: parent
+                                width: 20
+                                height: 20
+                                name: "info"
+                                iconColor: aboutMouse.containsMouse || aboutButton.activeFocus || aboutDialog.visible
+                                           ? root.theme.textPrimary
+                                           : root.theme.textSecondary
+                            }
+                        }
+
+                        MouseArea {
+                            id: aboutMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: aboutDialog.open()
+                            onContainsMouseChanged: {
+                                if (containsMouse) {
+                                    var p = aboutButton.mapToItem(overlayLayer, aboutButton.width, aboutButton.height / 2)
+                                    root.hoveredNavItem = aboutButton
+                                    root.hoveredNavTipKey = "nav.about"
+                                    root.hoveredNavText = lm.strings["nav.about"] || "About"
+                                    root.hoveredNavCenterX = p.x
+                                    root.hoveredNavCenterY = p.y
+                                } else if (root.hoveredNavItem === aboutButton) {
+                                    root.hoveredNavItem = null
+                                    root.hoveredNavTipKey = ""
+                                    root.hoveredNavText = ""
+                                }
+                            }
                         }
                     }
 
-                    MouseArea {
-                        id: aboutMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: aboutDialog.open()
-                        onContainsMouseChanged: {
-                            if (containsMouse) {
-                                var p = aboutButton.mapToItem(overlayLayer, aboutButton.width, aboutButton.height / 2)
-                                root.hoveredNavItem = aboutButton
-                                root.hoveredNavTipKey = "nav.about"
-                                root.hoveredNavText = lm.strings["nav.about"] || "About"
-                                root.hoveredNavCenterX = p.x
-                                root.hoveredNavCenterY = p.y
-                            } else if (root.hoveredNavItem === aboutButton) {
-                                root.hoveredNavItem = null
-                                root.hoveredNavTipKey = ""
-                                root.hoveredNavText = ""
+                    FocusScope {
+                        id: quitButton
+                        width: sidebar.width
+                        height: 56
+                        activeFocusOnTab: true
+
+                        Accessible.role: Accessible.Button
+                        Accessible.name: lm.strings["nav.quit"] || "Quit"
+                        Accessible.description: "Quit Mouser"
+
+                        Keys.onReturnPressed: backend.quitApp()
+                        Keys.onEnterPressed: backend.quitApp()
+                        Keys.onSpacePressed: backend.quitApp()
+
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 46
+                            height: 46
+                            radius: 14
+                            color: quitMouse.containsMouse || quitButton.activeFocus
+                                   ? Qt.rgba(1, 1, 1, root.darkMode ? 0.06 : 0.22)
+                                   : "transparent"
+
+                            border.width: quitButton.activeFocus ? 1 : 0
+                            border.color: root.theme.accent
+
+                            Behavior on color { ColorAnimation { duration: 150 } }
+
+                            AppIcon {
+                                anchors.centerIn: parent
+                                width: 20
+                                height: 20
+                                name: "x"
+                                iconColor: quitMouse.containsMouse || quitButton.activeFocus
+                                           ? root.theme.textPrimary
+                                           : root.theme.textSecondary
+                            }
+                        }
+
+                        MouseArea {
+                            id: quitMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: backend.quitApp()
+                            onContainsMouseChanged: {
+                                if (containsMouse) {
+                                    var p = quitButton.mapToItem(overlayLayer, quitButton.width, quitButton.height / 2)
+                                    root.hoveredNavItem = quitButton
+                                    root.hoveredNavTipKey = "nav.quit"
+                                    root.hoveredNavText = lm.strings["nav.quit"] || "Quit"
+                                    root.hoveredNavCenterX = p.x
+                                    root.hoveredNavCenterY = p.y
+                                } else if (root.hoveredNavItem === quitButton) {
+                                    root.hoveredNavItem = null
+                                    root.hoveredNavTipKey = ""
+                                    root.hoveredNavText = ""
+                                }
                             }
                         }
                     }
