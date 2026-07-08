@@ -60,6 +60,8 @@ jobs:
           python-version: "3.12"
 
       - name: Generate update metadata
+        env:
+          PYTHONPATH: .
         run: |
           mkdir -p update-assets
           cp Mouser-macOS/Mouser-macOS.zip update-assets/
