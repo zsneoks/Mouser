@@ -16,49 +16,32 @@ env:
 
 jobs:
   build-macos:
-    name: build-macos (${{ matrix.name }})
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Apple Silicon
-            runner: macos-15
-            python_architecture: arm64
-            pyinstaller_target_arch: arm64
-            artifact_name: Mouser-macOS
-            archive_name: Mouser-macOS.zip
-          - name: Intel
-            runner: macos-15-intel
-            python_architecture: x64
-            pyinstaller_target_arch: x86_64
-            artifact_name: Mouser-macOS-intel
-            archive_name: Mouser-macOS-intel.zip
-    runs-on: ${{ matrix.runner }}
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-          architecture: ${{ matrix.python_architecture }}
+          architecture: arm64
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
       - name: Build macOS app
         env:
-          PYINSTALLER_TARGET_ARCH: ${{ matrix.pyinstaller_target_arch }}
+          PYINSTALLER_TARGET_ARCH: arm64
         run: |
           chmod +x build_macos_app.sh
           ./build_macos_app.sh
 
       - name: Create archive
-        run: cd dist && zip -r -y "../${{ matrix.archive_name }}" Mouser.app
+        run: cd dist && zip -r -y "../Mouser-macOS.zip" Mouser.app
 
       - uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.archive_name }}
+          name: Mouser-macOS
+          path: Mouser-macOS.zip
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -77,7 +60,6 @@ jobs:
         run: |
           mkdir -p update-assets
           cp Mouser-macOS/Mouser-macOS.zip update-assets/
-          cp Mouser-macOS-intel/Mouser-macOS-intel.zip update-assets/
           python tools/generate_update_manifest.py \
             --repo "${{ github.repository }}" \
             --tag "${{ github.ref_name }}" \
@@ -100,7 +82,6 @@ jobs:
               --repo "${{ github.repository }}" \
               --clobber \
               Mouser-macOS/Mouser-macOS.zip \
-              Mouser-macOS-intel/Mouser-macOS-intel.zip \
               mouser-${{ github.ref_name }}-update.json
           else
             gh release create "${{ github.ref_name }}" \
@@ -108,7 +89,7 @@ jobs:
               --title "Mouser ${{ github.ref_name }}" \
               --generate-notes \
               Mouser-macOS/Mouser-macOS.zip \
-              Mouser-macOS-intel/Mouser-macOS-intel.zip \
               mouser-${{ github.ref_name }}-update.json
           fi
+
 
