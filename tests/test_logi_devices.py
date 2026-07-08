@@ -126,6 +126,26 @@ class LogiDeviceRegistryTests(unittest.TestCase):
         self.assertEqual(info.dpi_min, 200)
         self.assertEqual(info.dpi_max, 4000)
 
+    def test_build_m750_connected_device_info_uses_catalog_layout_and_buttons(self):
+        info = build_connected_device_info(
+            product_id=0xB02C,
+            product_name="Signature M750",
+            reprog_controls=[
+                {"cid": 0x0052},
+                {"cid": 0x0053},
+                {"cid": 0x0056},
+                {"cid": 0x00FD},
+            ],
+        )
+
+        self.assertEqual(info.key, "m750")
+        self.assertEqual(info.display_name, "M750 Signature")
+        self.assertEqual(info.ui_layout, "m750")
+        self.assertEqual(info.image_asset, "icons/mouse-simple.svg")
+        self.assertEqual(info.supported_buttons, ("middle", "xbutton1", "xbutton2", "dpi_switch"))
+        self.assertEqual(info.dpi_min, 200)
+        self.assertEqual(info.dpi_max, 4000)
+
     def test_mx_anywhere_3s_uses_exact_catalog_layout(self):
         info = build_connected_device_info(product_id=0xB037)
 

@@ -42,14 +42,21 @@ G502_BUTTONS = (
     "hscroll_right",
 )
 
-# M650 Signature family: no horizontal scroll, no mode-shift, no dedicated gesture button.
-# Exposes a Virtual Gesture Button (CID 0x00D7) via REPROG_CONTROLS_V4 but no physical
-# gesture key. Middle click, back, and forward side buttons are the configurable controls.
 M650_BUTTONS = (
     "middle",
     "xbutton1",
     "xbutton2",
 )
+
+# M750 Signature family: no horizontal scroll, no mode-shift, no dedicated gesture button,
+# but features a physical top DPI switch button (CID 0x00FD).
+M750_BUTTONS = (
+    "middle",
+    "xbutton1",
+    "xbutton2",
+    "dpi_switch",
+)
+
 
 
 def _hotspot(
@@ -231,6 +238,32 @@ LOGI_DEVICE_SPECS = (
         "dpi_min": 200,
         "dpi_max": 4000,
     },
+    # -- M750 Signature family ------------------------------------------------
+    # Wireless mouse with middle, back, forward, and a top DPI/custom button.
+    # Connects via Logi Bolt receiver (WPID 0xB02C) or Bluetooth LE.
+    {
+        "key": "m750",
+        "display_name": "M750 Signature",
+        "product_ids": (0xB02C,),
+        "aliases": (
+            "Signature M750",
+            "Logi M750",
+            "Logitech Signature M750",
+            "M750",
+            "M750 Signature",
+            "Logitech M750 Signature",
+            "M750 L",
+            "M750 L Signature",
+            "Signature M750 L",
+            "Signature Plus M750",
+            "Logitech Signature Plus M750",
+        ),
+        "ui_layout": "m750",
+        "image_asset": "icons/mouse-simple.svg",
+        "supported_buttons": M750_BUTTONS,
+        "dpi_min": 200,
+        "dpi_max": 4000,
+    },
     # -- G502 family ----------------------------------------------------------
     # Product IDs verified against Solaar's device descriptors. Wireless
     # variants list both the wired USB PID and the Lightspeed receiver WPID.
@@ -312,6 +345,20 @@ LOGI_DEVICE_LAYOUTS = {
         "note": (
             "M650 Signature — middle click, back, and forward side buttons "
             "are all configurable. No gesture button or horizontal scroll."
+        ),
+        "hotspots": [],
+    },
+    "m750": {
+        "key": "m750",
+        "label": "M750 Signature",
+        "image_asset": "icons/mouse-simple.svg",
+        "image_width": 220,
+        "image_height": 220,
+        "interactive": False,
+        "manual_selectable": True,
+        "note": (
+            "M750 Signature — middle click, back, forward side buttons, "
+            "and the top DPI switch button are all configurable. No gesture button or horizontal scroll."
         ),
         "hotspots": [],
     },
